@@ -1,17 +1,35 @@
-import React from "react";
+import React, { useContext } from "react";
 import moment from "moment";
-const Todo = ({ title, detail, date }) => {
+import { useMutation } from "@apollo/client";
+import { DELETE_TODO } from "../graphql/Mutation";
+import { GET_TODOS } from "../graphql/Query";
+import { TodoContext } from "../TodoContext";
+
+const Todo = ({ id, title, detail, date }) => {
+  const { selectedId, setSelectedId } = useContext(TodoContext);
+
+  const [deleteTodo] = useMutation(DELETE_TODO);
+  const removeTodo = (id) => {
+    console.log("delete id", id);
+    deleteTodo({
+      variables: {
+        id: id,
+      },
+      refetchQueries: [{ query: GET_TODOS }],
+    });
+  };
   return (
     <a
       href="#"
-      className="list-group-item list-group-item-action flex-column align-items-start "
+      onClick={() => setSelectedId(id)}
+      className="list-group-item list-group-item-action flex-column align-items-start"
     >
       <div className="d-flex w-100 justify-content-between">
         <h5 className="mb-1">{title}</h5>
-        <small>{moment(date).format("MMMM Do YYYY")}</small>
+        <small>{moment(date).format("MMMM Do YYYYY")}</small>
       </div>
       <p className="mb-1">{detail} </p>
-      <small>
+      <small onClick={() => removeTodo(id)}>
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="16"
